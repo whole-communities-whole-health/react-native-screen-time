@@ -1,5 +1,5 @@
 {
-  "name": "react-native-screen-time",
+  "name": "@wcwh/react-native-screen-time",
   "title": "React Native Screen Time",
   "version": "1.0.0",
   "description": "TODO",
@@ -16,8 +16,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/github_account/react-native-screen-time.git",
-    "baseUrl": "https://github.com/github_account/react-native-screen-time"
+    "url": "git+https://github.com/whole-communities-whole-health/react-native-screen-time.git",
+    "baseUrl": "https://github.com/whole-communities-whole-health/react-native-screen-time"
   },
   "keywords": [
     "react-native"
