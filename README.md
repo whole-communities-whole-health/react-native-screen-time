@@ -10,7 +10,7 @@
 
 ## Usage
 ```javascript
-import ScreenTime from 'react-native-screen-time';
+import ScreenTime from '@wcwh/react-native-screen-time';
 
 // TODO: What to do with the module?
 ScreenTime;
