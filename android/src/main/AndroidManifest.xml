@@ -1,6 +1,12 @@
 <!-- AndroidManifest.xml -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.reactlibrary">
-
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.reactlibrary">
+    <uses-permission
+        android:name="android.permission.PACKAGE_USAGE_STATS"
+        tools:ignore="ProtectedPermissions" />
+    <uses-sdk
+        android:minSdkVersion="19"
+        android:targetSdkVersion="22" />
 </manifest>
