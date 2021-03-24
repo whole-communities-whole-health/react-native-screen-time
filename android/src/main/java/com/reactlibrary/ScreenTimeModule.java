@@ -7,6 +7,8 @@ import android.app.AppOpsManager.*;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
 import android.content.Intent;
+import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Process;
 import android.content.Context;
@@ -25,6 +27,7 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.common.MapBuilder;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -38,10 +41,34 @@ public class ScreenTimeModule extends ReactContextBaseJavaModule {
 
     private final ReactApplicationContext reactContext;
     private final Context context;
+    //        constants.put("CATEGORY_UNDEFINED", ApplicationInfo.CATEGORY_UNDEFINED);
+//        constants.put("CATEGORY_GAME", ApplicationInfo.CATEGORY_GAME);
+//        constants.put("CATEGORY_AUDIO", ApplicationInfo.CATEGORY_AUDIO);
+//        constants.put("CATEGORY_VIDEO", ApplicationInfo.CATEGORY_VIDEO);
+//        constants.put("CATEGORY_IMAGE", ApplicationInfo.CATEGORY_IMAGE);
+//        constants.put("CATEGORY_SOCIAL", ApplicationInfo.CATEGORY_SOCIAL);
+//        constants.put("CATEGORY_NEWS", ApplicationInfo.CATEGORY_NEWS);
+//        constants.put("CATEGORY_MAPS", ApplicationInfo.CATEGORY_MAPS);
+//        constants.put("CATEGORY_PRODUCTIVITY", ApplicationInfo.CATEGORY_PRODUCTIVITY);
+    private static HashMap<Integer, String> categoryMap = new HashMap<Integer, String>() {{
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            put(ApplicationInfo.CATEGORY_UNDEFINED, "CATEGORY_UNDEFINED");
+            put(ApplicationInfo.CATEGORY_AUDIO, "CATEGORY_AUDIO");
+            put(ApplicationInfo.CATEGORY_VIDEO, "CATEGORY_VIDEO");
+            put(ApplicationInfo.CATEGORY_IMAGE, "CATEGORY_IMAGE");
+            put(ApplicationInfo.CATEGORY_SOCIAL, "CATEGORY_SOCIAL");
+            put(ApplicationInfo.CATEGORY_NEWS, "CATEGORY_NEWS");
+            put(ApplicationInfo.CATEGORY_MAPS, "CATEGORY_MAPS");
+            put(ApplicationInfo.CATEGORY_PRODUCTIVITY, "CATEGORY_PRODUCTIVITY");
+            put(ApplicationInfo.CATEGORY_GAME, "CATEGORY_GAME");
+        }
+        put(-2, "UNAVAILABLE");
+    }};;
     public ScreenTimeModule(ReactApplicationContext reactContext) {
         super(reactContext);
         this.reactContext = reactContext;
         this.context = getReactApplicationContext();
+
     }
 
 
@@ -72,23 +99,40 @@ public class ScreenTimeModule extends ReactContextBaseJavaModule {
     }
 
     @ReactMethod
-    public void queryUsageStats(int intervalType, double startTime, double endTime, Promise promise) {
-        WritableMap result = new WritableNativeMap();
+    public void queryUsageStats(int intervalType, double startTime, double endTime, Promise promise){
+        WritableNativeMap result = new WritableNativeMap();
         UsageStatsManager usageStatsManager = (UsageStatsManager)reactContext.getSystemService(Context.USAGE_STATS_SERVICE);
         List<UsageStats> queryUsageStats = usageStatsManager.queryUsageStats(intervalType, (long) startTime, (long) endTime);
         for (UsageStats us : queryUsageStats) {
             Log.d("UsageStats", us.getPackageName() + " = " + us.getTotalTimeInForeground());
-            WritableMap usageStats = new WritableNativeMap();
+            WritableNativeMap usageStats = new WritableNativeMap();
             usageStats.putString("packageName", us.getPackageName());
             usageStats.putDouble("totalTimeInForeground", us.getTotalTimeInForeground());
             usageStats.putDouble("firstTimeStamp", us.getFirstTimeStamp());
             usageStats.putDouble("lastTimeStamp", us.getLastTimeStamp());
             usageStats.putDouble("lastTimeUsed", us.getLastTimeUsed());
             usageStats.putInt("describeContents", us.describeContents());
+
+            usageStats.putString("packageCategory", getCategory(us.getPackageName()));
             result.putMap(us.getPackageName(), usageStats);
         }
         promise.resolve(result);
     }
+
+    public String getCategory(String packageName){
+        try{
+            ApplicationInfo applicationInfo = getReactApplicationContext().getPackageManager().getApplicationInfo(packageName, 0);
+            int category = -2;
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                category = applicationInfo.category;
+            }
+            return categoryMap.get(category);
+        }catch (Exception e) {
+            e.printStackTrace();
+            return categoryMap.get(-2); //UNAVAILABLE
+        }
+    }
+
 
     @Override
     public Map<String, Object> getConstants() {
@@ -103,6 +147,7 @@ public class ScreenTimeModule extends ReactContextBaseJavaModule {
         constants.put("TYPE_WIFI", ConnectivityManager.TYPE_WIFI);
         constants.put("TYPE_MOBILE", ConnectivityManager.TYPE_MOBILE);
         constants.put("TYPE_MOBILE_AND_WIFI", Integer.MAX_VALUE);
+
         return constants;
     }
 }
