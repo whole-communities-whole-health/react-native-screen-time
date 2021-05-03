@@ -3,38 +3,33 @@
 package com.reactlibrary;
 
 import android.app.AppOpsManager;
-import android.app.AppOpsManager.*;
 import android.app.usage.UsageStats;
 import android.app.usage.UsageStatsManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
-import android.os.Process;
-import android.content.Context;
 import android.os.Build;
+import android.os.Process;
 import android.provider.Settings;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
 
+import com.facebook.react.bridge.Callback;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.Callback;
-import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeMap;
 import com.facebook.react.common.MapBuilder;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static android.app.AppOpsManager.MODE_ALLOWED;
 import static android.app.AppOpsManager.OPSTR_GET_USAGE_STATS;
-import static androidx.core.content.ContextCompat.startActivity;
 
 
 public class ScreenTimeModule extends ReactContextBaseJavaModule {
@@ -83,6 +78,13 @@ public class ScreenTimeModule extends ReactContextBaseJavaModule {
 //        getPermission();
 //        callback.invoke("permission:" + checkForPermission(Objects.requireNonNull(this.getCurrentActivity()).getApplicationContext()));
     }
+//    @ReactMethod
+//    public void checkBatteryStatus(Promise promise){
+//        int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+//        boolean isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+//                status == BatteryManager.BATTERY_STATUS_FULL;
+//
+//    }
 
 //    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 //    private boolean checkForPermission(Context context) {
@@ -95,9 +97,16 @@ public class ScreenTimeModule extends ReactContextBaseJavaModule {
     public void checkForPermission(Promise promise) {
         AppOpsManager appOps = (AppOpsManager) reactContext.getSystemService(Context.APP_OPS_SERVICE);
         int mode = appOps.checkOpNoThrow(OPSTR_GET_USAGE_STATS, Process.myUid(), reactContext.getPackageName());
-        promise.resolve(mode == MODE_ALLOWED);
+        if(mode == MODE_ALLOWED){
+            promise.resolve(true);
+        }else{
+            Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            context.startActivity(intent);
+        }
+
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP_MR1)
     @ReactMethod
     public void queryUsageStats(int intervalType, double startTime, double endTime, Promise promise){
         WritableNativeMap result = new WritableNativeMap();
