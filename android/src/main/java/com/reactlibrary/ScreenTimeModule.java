@@ -101,6 +101,7 @@ public class ScreenTimeModule extends ReactContextBaseJavaModule {
             promise.resolve(true);
         }else{
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
         }
 
