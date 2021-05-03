@@ -101,7 +101,7 @@ public class ScreenTimeModule extends ReactContextBaseJavaModule {
         if(mode == MODE_ALLOWED){
             promise.resolve(true);
         }else{
-            Toast.makeText(this.context, toastStr, Toast.LENGTH_SHORT).show();
+            Toast.makeText(this.context, toastStr, Toast.LENGTH_LONG).show();
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
