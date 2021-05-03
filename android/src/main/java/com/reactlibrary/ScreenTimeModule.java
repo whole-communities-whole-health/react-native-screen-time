@@ -13,6 +13,7 @@ import android.os.Build;
 import android.os.Process;
 import android.provider.Settings;
 import android.util.Log;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 
@@ -94,12 +95,13 @@ public class ScreenTimeModule extends ReactContextBaseJavaModule {
 //    }
 
     @ReactMethod
-    public void checkForPermission(Promise promise) {
+    public void checkForPermission(String toastStr,Promise promise) {
         AppOpsManager appOps = (AppOpsManager) reactContext.getSystemService(Context.APP_OPS_SERVICE);
         int mode = appOps.checkOpNoThrow(OPSTR_GET_USAGE_STATS, Process.myUid(), reactContext.getPackageName());
         if(mode == MODE_ALLOWED){
             promise.resolve(true);
         }else{
+            Toast.makeText(this.context, toastStr, Toast.LENGTH_SHORT).show();
             Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
             intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             context.startActivity(intent);
